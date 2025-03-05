@@ -29,6 +29,13 @@ class Decorator implements ExceptionHandler
     {
         $this->handler->report($e);
     }
+
+    public function reportable(callable $reportUsing)
+    {
+        if (method_exists($this->handler, 'reportable')) {
+            return $this->handler->reportable($reportUsing);
+        }
+    }
     /**
      * Render an exception into an HTTP response.
      *
