@@ -6,12 +6,12 @@ Redirectmap requires Laravel 5.0.
 
 Install this package through Composer:
 ```sh
-$ composer require litvin/redirectmap
+$ composer require vis/redirectmap
 ```
 OR manually edit your project's composer.json file to require **litvin/redirectmap**.
 ```php
 "require": {
-    "litvin/redirectmap": "0.*"
+    "vis/redirectmap": "0.*"
 }
 ````
 ```sh

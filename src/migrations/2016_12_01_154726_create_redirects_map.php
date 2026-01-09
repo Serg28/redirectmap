@@ -14,10 +14,9 @@ class CreateRedirectsMap extends Migration
     {
         Schema::create('redirect_map', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('hash');
-            $table->string('old_link');
+            $table->string('old_link')->index();
             $table->string('new_link');
-            $table->timestamps();
+            $table->integer('status');
         });
     }
 

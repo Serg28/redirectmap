@@ -1,10 +1,11 @@
 <?php
 namespace Litvin\Redirectmap;
 
-use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use \Litvin\Redirectmap\Models\RedirectMap;
+use Throwable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Decorator implements ExceptionHandler
 {
@@ -25,16 +26,9 @@ class Decorator implements ExceptionHandler
      * @param  \Exception  $e
      * @return void
      */
-    public function report(Exception $e)
+    public function report(Throwable $e)
     {
         $this->handler->report($e);
-    }
-
-    public function reportable(callable $reportUsing)
-    {
-        if (method_exists($this->handler, 'reportable')) {
-            return $this->handler->reportable($reportUsing);
-        }
     }
     /**
      * Render an exception into an HTTP response.
@@ -43,17 +37,18 @@ class Decorator implements ExceptionHandler
      * @param  \Exception  $e
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Exception $e)
+    public function render($request, Throwable $e)
     {
-        if ($e instanceof NotFoundHttpException) {
-            $path = \Request::path();
-            $map = RedirectMap::where('old_link',$path)
-                ->orWhere('old_link',$path.'/')
-                ->orWhere('old_link','/'.$path.'/')
-                ->orWhere('old_link','/'.$path)
-                ->first();
+        if ($e instanceof NotFoundHttpException || $e instanceof ModelNotFoundException) {
+            $path = $request->getRequestUri();
+            $map = RedirectMap::where('old_link', $path)->first();
 
-            if ($map) return \Response::redirectTo($map->new_link);
+            if ($map) {
+
+                $status = $map->status ? : 301;
+
+                return \Response::redirectTo($map->new_link, $status);
+            }
         }
 
         return $this->handler->render($request, $e);
@@ -65,8 +60,13 @@ class Decorator implements ExceptionHandler
      * @param  \Exception  $e
      * @return void
      */
-    public function renderForConsole($output, Exception $e)
+    public function renderForConsole($output, Throwable $e)
     {
         $this->handler->renderForConsole($output, $e);
+    }
+
+    public function shouldReport(Throwable $e)
+    {
+        $this->handler->shouldReport($e);
     }
 }
