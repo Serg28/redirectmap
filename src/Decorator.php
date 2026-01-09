@@ -76,8 +76,8 @@ class Decorator implements ExceptionHandler
      * @param  \Throwable  $e
      * @return bool
      */
-    public function shouldReport(Throwable $e)
+    public function shouldReport(\Throwable $e): bool
     {
-        return $this->exceptionHandler->shouldReport($e);
+        return $this->handler->shouldReport($e);
     }
 }
