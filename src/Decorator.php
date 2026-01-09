@@ -1,11 +1,10 @@
 <?php
 namespace Litvin\Redirectmap;
 
+use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use \Litvin\Redirectmap\Models\RedirectMap;
-use Throwable;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Decorator implements ExceptionHandler
 {
@@ -23,32 +22,38 @@ class Decorator implements ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $e
+     * @param  \Throwable  $e
      * @return void
      */
-    public function report(Throwable $e)
+    public function report(\Throwable $e)
     {
         $this->handler->report($e);
+    }
+
+    public function reportable(callable $reportUsing)
+    {
+        if (method_exists($this->handler, 'reportable')) {
+            return $this->handler->reportable($reportUsing);
+        }
     }
     /**
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $e
+     * @param  \Throwable  $e
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Throwable $e)
+    public function render($request, \Throwable $e)
     {
-        if ($e instanceof NotFoundHttpException || $e instanceof ModelNotFoundException) {
-            $path = $request->getRequestUri();
-            $map = RedirectMap::where('old_link', $path)->first();
+        if ($e instanceof NotFoundHttpException) {
+            $path = \Request::path();
+            $map = RedirectMap::where('old_link',$path)
+                ->orWhere('old_link',$path.'/')
+                ->orWhere('old_link','/'.$path.'/')
+                ->orWhere('old_link','/'.$path)
+                ->first();
 
-            if ($map) {
-
-                $status = $map->status ? : 301;
-
-                return \Response::redirectTo($map->new_link, $status);
-            }
+            if ($map) return \Response::redirectTo($map->new_link);
         }
 
         return $this->handler->render($request, $e);
@@ -57,16 +62,22 @@ class Decorator implements ExceptionHandler
      * Render an exception to the console.
      *
      * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-     * @param  \Exception  $e
+     * @param  \Throwable  $e
      * @return void
      */
-    public function renderForConsole($output, Throwable $e)
+    public function renderForConsole($output, \Throwable $e)
     {
-        $this->handler->renderForConsole($output, $e);
+        return $this->handler->renderForConsole($output, $e);
     }
 
-    public function shouldReport(Throwable $e)
+    /**
+     * Determine if the exception should be reported.
+     *
+     * @param  \Throwable  $e
+     * @return bool
+     */
+    public function shouldReport(\Throwable $e): bool
     {
-        $this->handler->shouldReport($e);
+        return $this->handler->shouldReport($e);
     }
 }
