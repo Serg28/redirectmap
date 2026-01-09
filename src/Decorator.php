@@ -62,11 +62,11 @@ class Decorator implements ExceptionHandler
      * Render an exception to the console.
      *
      * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-     * @param  \Exception  $e
+     * @param  \Throwable  $e
      * @return void
      */
-    public function renderForConsole($output, Exception $e)
+    public function renderForConsole($output, Throwable $e)
     {
-        $this->handler->renderForConsole($output, $e);
+        return $this->handler->renderForConsole($output, $e);
     }
 }
