@@ -19,6 +19,8 @@ class ServiceProvider extends Provider
      */
     public function boot()
     {
+        require __DIR__.'/../vendor/autoload.php';
+
         $this->publishes([
             __DIR__.'/migrations/' => database_path('/migrations')
         ], 'redirect_map');
@@ -27,6 +29,9 @@ class ServiceProvider extends Provider
             __DIR__ . '/config/' => config_path('/builder/tb-definitions')
         ], 'redirect_map');
 
+        $this->loadViewsFrom(realpath(__DIR__.'/resources/views'), 'redirect');
+
+        require __DIR__.'/Http/router.php';
     }
     /**
      * Register the service provider.
