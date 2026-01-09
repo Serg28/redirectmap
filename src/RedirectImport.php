@@ -7,21 +7,36 @@ use Maatwebsite\Excel\Concerns\ToModel;
 
 class RedirectImport implements ToModel
 {
-    /**
-     * @param array $row
-     *
-     * @return User|null
-     */
     public function model(array $row)
     {
-        if (!$row[0] || !$row[1]) {
-            return;
+        if (
+            empty($row[0]) ||
+            empty($row[1]) ||
+            $row[0] === '#' ||
+            $row[0] === 'Старе посилання'
+        ) {
+            return null;
         }
-        
-        return new RedirectMap([
-            'old_link'     => $row[0],
-            'new_link'    => $row[1],
-            'status' => $row[2] ?? 301,
+
+        if (count($row) === 4) {
+            $oldLink = $row[1];
+            $newLink = $row[2];
+            $status  = $row[3] ?? 301;
+        } else {
+            $oldLink = $row[0];
+            $newLink = $row[1];
+            $status  = $row[2] ?? 301;
+        }
+
+        $redirect = RedirectMap::firstOrNew([
+            'old_link' => $oldLink,
         ]);
+
+        $redirect->fill([
+            'new_link' => $newLink,
+            'status'   => $status,
+        ]);
+
+        return $redirect;
     }
 }
