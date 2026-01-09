@@ -69,4 +69,15 @@ class Decorator implements ExceptionHandler
     {
         return $this->handler->renderForConsole($output, $e);
     }
+
+    /**
+     * Determine if the exception should be reported.
+     *
+     * @param  \Throwable  $e
+     * @return bool
+     */
+    public function shouldReport(Throwable $e)
+    {
+        return $this->exceptionHandler->shouldReport($e);
+    }
 }
