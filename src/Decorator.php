@@ -43,7 +43,7 @@ class Decorator implements ExceptionHandler
      * @param  \Throwable  $e
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Throwable $e)
+    public function render($request, \Throwable $e)
     {
         if ($e instanceof NotFoundHttpException) {
             $path = \Request::path();
@@ -65,7 +65,7 @@ class Decorator implements ExceptionHandler
      * @param  \Throwable  $e
      * @return void
      */
-    public function renderForConsole($output, Throwable $e)
+    public function renderForConsole($output, \Throwable $e)
     {
         return $this->handler->renderForConsole($output, $e);
     }
