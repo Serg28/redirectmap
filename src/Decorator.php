@@ -22,10 +22,10 @@ class Decorator implements ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $e
+     * @param  \Throwable  $e
      * @return void
      */
-    public function report(Exception $e)
+    public function report(\Throwable $e)
     {
         $this->handler->report($e);
     }
