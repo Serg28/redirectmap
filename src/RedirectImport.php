@@ -10,8 +10,6 @@ class RedirectImport implements ToModel
     public function model(array $row)
     {
         if (
-            empty($row[0]) ||
-            empty($row[1]) ||
             $row[0] === '#' ||
             $row[0] === 'Старе посилання'
         ) {
@@ -27,6 +25,11 @@ class RedirectImport implements ToModel
             $newLink = $row[1];
             $status  = $row[2] ?? 301;
         }
+
+        if(empty($oldLink) || empty($newLink)) {
+            return null;
+        }
+
 
         $redirect = RedirectMap::firstOrNew([
             'old_link' => $oldLink,
